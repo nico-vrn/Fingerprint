@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f9;
+        }
+        header {
+            background: #2222;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+        section {
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bienvenue sur Mon Portfolio</h1>
+    </header>
+    <section>
+        <h2>À propos de moi</h2>
+        <p>Je suis un développeur passionné par les technologies web et les solutions innovantes.</p>
+        
+        <h2>Mes projets</h2>
+        <ul>
+            <li>Application Web de Gestion</li>
+            <li>Site E-commerce</li>
+            <li>Outil d'analyse de données</li>
+        </ul>
+    </section>
+
+    <script>
+        async function collectAndSendUserInfo() {
+            const data = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+            };
+
+            // Détails de la connexion réseau
+            if (navigator.connection) {
+                data.network = {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt,
+                };
+            }
+
+            // Support des médias
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                data.mediaDevices = devices.map(device => ({
+                    kind: device.kind,
+                    label: device.label,
+                }));
+            } catch (error) {
+                console.error("Erreur lors de la récupération des médias : ", error);
+            }
+
+            // Position géographique (avec consentement utilisateur)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        data.geolocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                        };
+                        sendData(data);
+                    },
+                    (error) => {
+                        console.warn("Impossible d'obtenir la position : ", error);
+                        sendData(data); // Envoyer les données même sans géolocalisation
+                    }
+                );
+            } else {
+                sendData(data);
+            }
+
+            // Infos sur l'IP
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const ipData = await response.json();
+                data.ip = ipData.ip;
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'IP : ", error);
+            }
+
+            // Headers HTTP (les récupérer via une API si nécessaire)
+            data.headers = {
+                acceptLanguage: navigator.language,
+                userAgent: navigator.userAgent,
+            };
+
+            // Si aucune géolocalisation, envoyer directement
+            sendData(data);
+        }
+
+        function sendData(data) {
+            fetch('/api/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+            .then(() => console.log('Données utilisateur envoyées au serveur'))
+            .catch(err => console.error('Erreur lors de l\'envoi des données :', err));
+        }
+
+        window.onload = collectAndSendUserInfo;
+    </script>
+</body>
+</html>
