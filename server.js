@@ -6,8 +6,8 @@ const { parse } = require('querystring');
 
 // Charger les certificats Let's Encrypt
 const options = {
-    key: fs.readFileSync('/etc/letsencrypt/live/nlefranc.dev/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/nlefranc.dev/fullchain.pem')
+    key: fs.readFileSync('[Files]'),
+    cert: fs.readFileSync('[Files]')
 };
 
 // Serveur HTTPS pour servir le contenu sécurisé
